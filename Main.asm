@@ -55,37 +55,53 @@ MATRIZ db 9 dup (31h,32h,33h,34h,35h,36h,37h,38h,39h)
 
 main proc
 
-mov ax,@data
-mov ds,ax
-lea bx,MATRIZ ;o vetor armazenado em bx
+    mov ax,@data
+    mov ds,ax
+    lea bx,MATRIZ ;o vetor armazenado em bx
 
-mov ah,02h
-mov ch,9 ;contador para linha
+    call imprime_matriz
+    call troca_numero
 
-inicio:
-barra
-mov cl,9 ;contador para coluna
-xor si,si ;será a linha
-
-mover:
-mov dl, [bx][si]
-int 21h
-linha_vert
-inc si ;exibindo a linha primeira linha da matriz
-dec cl ;vai pulando de colunas 9 vezes
-jnz mover
-
-pula_linha
-
-add bx, 9 ;contador de coluna
-dec ch ;decrementa linha
-jnz inicio
-
-mov ah,4ch
-int 21h
-
-
+    mov ah,4ch
+    int 21h
 
 main endp
+
+imprime_matriz proc
+
+    mov ah,02h
+    mov ch,9 ;contador para linha
+
+    inicio:
+    barra
+    mov cl,9 ;contador para coluna
+    xor si,si ;será a linha
+
+    mover:
+    mov dl, [bx][si]
+    int 21h
+    linha_vert
+    inc si ;exibindo a linha primeira linha da matriz
+    dec cl ;vai pulando de colunas 9 vezes
+    jnz mover
+
+    pula_linha
+
+    add bx, 9 ;contador de coluna
+    dec ch ;decrementa linha
+    jnz inicio
+
+    ret
+imprime_matriz endp
+
+troca_numero proc
+    
+    mov bx,bx ;coluna 8
+    xor si,si ;linha 0
+
+    mov MATRIZ[bx][si],'?'
+
+    ret
+troca_numero endp
 
 end main
