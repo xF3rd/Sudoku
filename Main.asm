@@ -49,9 +49,9 @@ endm
 
 .data
 MATRIZ db 9 dup (31h,32h,33h,34h,35h,36h,37h,38h,39h)
-msg1 db 'Qual coluna quer mudar:$'
-msg2 db 'Qual linha quer mudar:$'
-msg3 db 'Qual numero vai colocar:$'
+msg1 db 'Qual coluna quer mudar:$',10
+msg2 db 'Qual linha quer mudar:$',10
+msg3 db 'Qual numero vai colocar:$',10
 
 .stack 100h
 .code
@@ -79,6 +79,8 @@ imprime_matriz proc
 
     mov ah,02h
     mov ch,9                ;contador para linha
+    
+    pula_linha
 
     inicio:
     barra
@@ -104,31 +106,41 @@ imprime_matriz endp
 
 troca_numero proc
 
-    xor si,si
-    xor bx,bx
+    xor si,si               ;zera o registrador de linha
+    xor bx,bx               ;zera o registrador da coluna
+    xor dx,dx               ;zerar o registrador dx p/ imprimir mensagem sem poluição
 
-    mov dl,offset msg1
-    mov ah,09
-    int 21h
-    mov ah,01
-    int 21h
-    sub al,30h
-    mov bx,ax
+    pula_linha
+    
+    mov dl,offset msg1      
+    mov ah,09               
+    int 21h                 
+    mov ah,01                              
+    int 21h                 ;recebe o caracter da coluna                
+    sub al,30h              ;inverte o caracter para binário
+    mov bx,ax               ;valor recebido vai ser armazenado em bx
 
-    mov dl,offset msg2
-    mov ah,09
-    int 21h
-    mov ah,01
-    int 21h
-    sub al,30h
-    mov si,ax
+    pula_linha
 
-    mov dl,offset msg3
-    mov ah,09
+    mov dl,offset msg2      
+    mov ah,09               
+    int 21h                 
+    mov ah,01               
+    int 21h                 ;recebe o caracter da linha
+    sub al,30h              ;inverte o caracter para binário
+    mov si,ax               ;valor recebido vai ser armazenado em si
+
+    pula_linha
+
+    mov dl,offset msg3      
+    mov ah,09               
+    int 21h                 
+    mov ah,01               ;recebe o caracter da substituição
     int 21h
-    mov ah,01
-    int 21h
-    mov matriz[bx][si],al
+    
+    pula_linha                 
+    
+    mov MATRIZ[bx][si],al   ;substituição do caracter na matriz 
 
     
     ret
