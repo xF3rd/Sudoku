@@ -52,7 +52,7 @@ MATRIZ db 9 dup (31h,32h,33h,34h,35h,36h,37h,38h,39h)
 msg1 db 'Qual coluna quer mudar:$',10
 msg2 db 'Qual linha quer mudar:$',10
 msg3 db 'Qual numero vai colocar:$',10
-
+msg4 db 'Quer continuar?   (1-Sim/2-Nao)$'
 .stack 100h
 .code
 
@@ -73,7 +73,7 @@ main proc
 main endp
 
 imprime_matriz proc
-
+    
     xor bx,bx
     xor si,si               ;limpa reg
 
@@ -105,7 +105,7 @@ imprime_matriz proc
 imprime_matriz endp
 
 troca_numero proc
-
+    continua:
     xor si,si               ;zera o registrador de linha
     xor bx,bx               ;zera o registrador da coluna
     xor dx,dx               ;zerar o registrador dx p/ imprimir mensagem sem poluição
@@ -150,6 +150,17 @@ troca_numero proc
     pula_linha                 
     
     mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz 
+
+    xor dx,dx
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    mov ah,01               ;recebe o caracter da substituição
+    int 21h
+    mov dh,al
+    sub dh,30h
+    cmp dh,1                ;ve se usuario quer continuar
+    je continua
     
     ret
 troca_numero endp
