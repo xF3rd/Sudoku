@@ -118,7 +118,8 @@ troca_numero proc
     mov ah,01                              
     int 21h                 ;recebe o caracter da coluna                
     sub al,30h              ;inverte o caracter para binário
-    mov bx,ax               ;valor recebido vai ser armazenado em bx
+    mov bl,al               ;valor recebido vai ser armazenado em bx
+    dec bl                  ;ajusta valor recebido para entrar na matriz
 
     pula_linha
 
@@ -128,7 +129,13 @@ troca_numero proc
     mov ah,01               
     int 21h                 ;recebe o caracter da linha
     sub al,30h              ;inverte o caracter para binário
-    mov si,ax               ;valor recebido vai ser armazenado em si
+    xor ah,ah               ;limpa parte alta de ax
+    dec al                  ;ajusta valor para entrar na matriz
+    mov ch,9
+    mul ch                  ;multiplica o valor recebido para achar a linha certa 
+    xor ah,ah
+    mov si,ax               ;coloca em si
+    
 
     pula_linha
 
@@ -137,13 +144,15 @@ troca_numero proc
     int 21h                 
     mov ah,01               ;recebe o caracter da substituição
     int 21h
+    mov dh,al               ;guarda valor
+    
     
     pula_linha                 
     
-    mov MATRIZ[bx][si],al   ;substituição do caracter na matriz 
-
+    mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz 
     
     ret
 troca_numero endp
 
 end main
+test
