@@ -48,11 +48,32 @@ int 21h
 endm
 
 .data
-MATRIZ db 9 dup (31h,32h,33h,34h,35h,36h,37h,38h,39h)
+MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
+        db 32h,33h,20h,20h,36h,20h,34h,20h,20h
+        db 20h,20h,39h,34h,20h,20h,37h,20h,20h
+        db 38h,39h,20h,37h,20h,20h,20h,20h,20h
+        db 35h,20h,20h,20h,20h,20h,39h,31h,20h
+        db 20h,36h,20h,20h,20h,20h,20h,20h,37h
+        db 20h,20h,38h,20h,31h,20h,20h,34h,33h
+        db 20h,34h,31h,20h,20h,20h,20h,36h,20h
+        db 20h,20h,20h,38h,20h,32h,20h,37h,20h
+
+Matriz_resposta db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,31h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+
 msg1 db 'Qual coluna quer mudar:$',10
 msg2 db 'Qual linha quer mudar:$',10
 msg3 db 'Qual numero vai colocar:$',10
 msg4 db 'Quer continuar?   (1-Sim/2-Nao)$'
+msg5 db 'Resposta errada!!!!$'
+msg6 db 'Resposta certa$',10,'Parabens!!!!$'
 .stack 100h
 .code
 
@@ -63,10 +84,29 @@ main proc
     mov es,ax                   ;inicializa es
     lea bx,MATRIZ               ;o vetor armazenado em bx
 
-    
+novamente:
+    call imprime_matriz
     call troca_numero
     call imprime_matriz
+    call verifica_matriz
+    cmp bx,81
+    je certo
+    jmp errado
+certo:
+    xor dx,dx
+    mov dx,offset msg6      
+    mov ah,09               
+    int 21h
+    jmp fim
 
+
+errado:
+    xor dx,dx
+    mov dx,offset msg5      
+    mov ah,09               
+    int 21h
+    jmp novamente
+fim:
     mov ah,4ch
     int 21h
 
@@ -155,8 +195,9 @@ troca_numero proc
     mov dl,offset msg4      
     mov ah,09               
     int 21h
-    mov ah,01               ;recebe o caracter da substituição
+    mov ah,01               ;recebe resposta
     int 21h
+
     mov dh,al
     sub dh,30h
     cmp dh,1                ;ve se usuario quer continuar
@@ -165,5 +206,29 @@ troca_numero proc
     ret
 troca_numero endp
 
+verifica_matriz proc
+xor bx,bx
+xor cx,cx
+xor dx,dx
+mov cx,81
+volta:
+
+    cld
+    lea si,MATRIZ
+    lea di,Matriz_resposta
+    cmpsb
+    jz certo1
+continua2:
+    dec cx
+    cmp cx,0
+    jnz volta
+    jmp fim1
+
+    certo1:
+    inc bx
+    jmp continua2
+fim1:    
+ret
+verifica_matriz endp
+
 end main
-test
