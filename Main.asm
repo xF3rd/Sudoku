@@ -58,6 +58,7 @@ MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
         db 20h,34h,31h,20h,20h,20h,20h,36h,20h
         db 20h,20h,20h,38h,20h,32h,20h,37h,20h
 
+
 Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
                 db 32h,33h,37h,31h,36h,39h,34h,38h,35h
                 db 36h,38h,39h,34h,32h,35h,37h,33h,31h
@@ -68,10 +69,13 @@ Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
                 db 37h,34h,31h,35h,39h,33h,38h,36h,32h
                 db 33h,35h,36h,38h,34h,32h,31h,37h,39h
 
+
 msg1 db 'Qual coluna quer mudar:$',10
 msg2 db 'Qual linha quer mudar:$',10
 msg3 db 'Qual numero vai colocar:$',10
 msg4 db 'Quer continuar?   (1-Sim/2-Nao)$'
+msg5 db 'Resposta errada!!!!$'
+msg6 db 'Resposta certa$',10,'Parabens!!!!$'
 .stack 100h
 .code
 
@@ -82,10 +86,29 @@ main proc
     mov es,ax                   ;inicializa es
     lea bx,MATRIZ               ;o vetor armazenado em bx
 
-    
+novamente:
+    call imprime_matriz
     call troca_numero
     call imprime_matriz
+    call verifica_matriz
+    cmp bx,81
+    je certo
+    jmp errado
+certo:
+    xor dx,dx
+    mov dx,offset msg6      
+    mov ah,09               
+    int 21h
+    jmp fim
 
+
+errado:
+    xor dx,dx
+    mov dx,offset msg5      
+    mov ah,09               
+    int 21h
+    jmp novamente
+fim:
     mov ah,4ch
     int 21h
 
@@ -174,8 +197,9 @@ troca_numero proc
     mov dl,offset msg4      
     mov ah,09               
     int 21h
-    mov ah,01               ;recebe o caracter da substituição
+    mov ah,01               ;recebe resposta
     int 21h
+
     mov dh,al
     sub dh,30h
     cmp dh,1                ;ve se usuario quer continuar
@@ -195,7 +219,9 @@ volta:
     lea si,MATRIZ
     lea di,Matriz_resposta
     cmpsb
-    jnz certo1
+
+    jz certo1
+
 continua2:
     dec cx
     cmp cx,0
@@ -209,4 +235,6 @@ fim1:
 ret
 verifica_matriz endp
 
+
 end main
+
