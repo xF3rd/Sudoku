@@ -58,15 +58,17 @@ MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
         db 20h,34h,31h,20h,20h,20h,20h,36h,20h
         db 20h,20h,20h,38h,20h,32h,20h,37h,20h
 
-Matriz_resposta db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,31h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
-                db 31h,32h,33h,34h,35h,36h,37h,38h,39h
+
+Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
+                db 32h,33h,37h,31h,36h,39h,34h,38h,35h
+                db 36h,38h,39h,34h,32h,35h,37h,33h,31h
+                db 38h,39h,33h,37h,35h,31h,36h,32h,34h
+                db 35h,37h,34h,32h,33h,36h,39h,31h,38h
+                db 31h,36h,32h,39h,38h,34h,33h,35h,37h
+                db 39h,32h,38h,36h,31h,37h,35h,34h,33h
+                db 37h,34h,31h,35h,39h,33h,38h,36h,32h
+                db 33h,35h,36h,38h,34h,32h,31h,37h,39h
+
 
 msg1 db 'Qual coluna quer mudar:$',10
 msg2 db 'Qual linha quer mudar:$',10
@@ -217,7 +219,9 @@ volta:
     lea si,MATRIZ
     lea di,Matriz_resposta
     cmpsb
+
     jz certo1
+
 continua2:
     dec cx
     cmp cx,0
@@ -231,4 +235,6 @@ fim1:
 ret
 verifica_matriz endp
 
+
 end main
+
