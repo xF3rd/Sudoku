@@ -220,7 +220,7 @@ volta:
     lea di,Matriz_resposta
     cmpsb
 
-    jz certo1
+    jnz certo1
 
 continua2:
     dec cx
