@@ -76,6 +76,23 @@ imprime_matriz macro proc
     jnz inicio
 endm
 
+comp_enter macro proc
+    pula:
+
+    pula_linha
+
+    mov ah,09h
+    lea dx,aviso
+    int 21h
+
+    pula_linha
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne pula
+endm
+
 .data
 MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
         db 32h,33h,20h,20h,36h,20h,34h,20h,20h
@@ -102,9 +119,26 @@ Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
 msg1 db 'Qual coluna quer mudar:$',10
 msg2 db 'Qual linha quer mudar:$',10
 msg3 db 'Qual numero vai colocar:$',10
-msg4 db 'Digite:',10,'1-Continuar a troca de número',10,'2-Terminar a matriz','$'
+msg4 db 'Digite:',10,'1-Continuar a troca de numero',10,'2-Terminar a matriz','$'
 msg5 db 'Resposta errada!!!!$'
 msg6 db 'Resposta certa$',10,'Parabens!!!!$'
+msg7 db 13,'JOGO SUDOKO',10
+     db ' ',10
+     db 'Informacoes iniciais sobre o jogo:',10
+     db 13,'O objetivo do jogo e completar todos os quadrados',10 
+     db 'utilizando numeros de 1 a 9. Para completa-los',10
+     db 'nao pode haver numeros repetidos nas linhas',10 
+     db 'horizontais e verticais.',10
+     db ' ',10
+     db '(Clique na tecla enter para continuar)','$'
+msg8 db 'Desejo-lhe boa sorte amigo ;)!',10
+     db ' ',10
+     db '(Clique na tecla enter para começar o jogo)',10,'$'
+aviso db 10,13,'Nao amigo, aperte a tecla enter para comecar a jogar :(','$'
+fimjogo db ' ',10
+        db 'FIM DE JOGO!',10
+        db ' ',10
+        db '(Aperte a tecla enter para reiniciar o jogo)','$'
 .stack 100h
 .code
 
@@ -116,32 +150,99 @@ main proc
     lea bx,MATRIZ               ;o vetor armazenado em bx
 
 novamente:
-    ; call imprime_matriz
+    call info_jogo
     call troca_numero
-    ; call imprime_matriz
     call verifica_matriz
     cmp bx,81
     je certo
     jmp errado
+
 certo:
+    pula_linha
     xor dx,dx
     mov dx,offset msg6      
     mov ah,09               
     int 21h
     jmp fim
 
-
 errado:
+    pula_linha
     xor dx,dx
     mov dx,offset msg5      
     mov ah,09               
     int 21h
-    jmp novamente
+
 fim:
-    mov ah,4ch
+    pula_linha
+    lea dx,fimjogo
+    mov ah,09               
     int 21h
+    
+    pula_linha
+    mov ah,01h
+    int 21h
+    cmp al,0Dh
+    je novamente
+
+    call compara_enter
+    jmp novamente
 
 main endp
+
+compara_enter proc
+     pula:
+
+    pula_linha
+
+    mov ah,09h
+    lea dx,aviso
+    int 21h
+
+    pula_linha
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne pula
+
+    ret
+compara_enter endp
+
+info_jogo proc
+
+    pula_linha
+    mov ax,ax                   ;printa as informações do jogo
+    mov ah,09h
+    lea dx,msg7
+    int 21h
+
+    pula_linha
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne pula
+
+    pula_linha
+
+    mov ah,09h
+    lea dx,msg8
+    int 21h
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne pula
+    
+    ret                         ;vai para o precedimento de impressão de matriz
+
+    pula_linha
+
+    call compara_enter
+    
+    ret                         ;vai para o precedimento de impressão de matriz
+
+info_jogo endp
 
 troca_numero proc
     continua3:
@@ -198,6 +299,7 @@ troca_numero proc
     mov dl,offset msg4      
     mov ah,09               
     int 21h
+    pula_linha
     mov ah,01               ;recebe resposta
     int 21h
 
@@ -210,10 +312,10 @@ troca_numero proc
 troca_numero endp
 
 verifica_matriz proc
-xor bx,bx
-xor cx,cx
-xor dx,dx
-mov cx,81
+    xor bx,bx
+    xor cx,cx
+    xor dx,dx
+    mov cx,81
 volta:
 
     cld
@@ -233,9 +335,8 @@ continua2:
     inc bx
     jmp continua2
 fim1:    
-ret
+    ret
 verifica_matriz endp
-
 
 end main
 
