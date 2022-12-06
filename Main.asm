@@ -10,7 +10,7 @@ linha_vert macro proc               ;macro para fazer linha na vertical
 mov ah,02h
 mov dl,' '
 int 21h
-mov dl,'|'
+mov dl,0b3h
 int 21h
 mov dl,' '
 int 21h
@@ -37,12 +37,29 @@ loop1:
 cmp cl,0
 je sai
 mov ah,02h
-mov dl,'-'
+mov dl,0c4h
 int 21h
 dec cl
 
 jmp loop1
 sai:
+mov dl,10
+int 21h
+endm
+
+barra2 macro proc                    ;faz barra na horizontal
+mov cl,35
+
+loop2:
+cmp cl,0
+je sai2
+mov ah,02h
+mov dl,0c4h
+int 21h
+dec cl
+
+jmp loop2
+sai2:
 mov dl,10
 int 21h
 endm
@@ -99,13 +116,13 @@ continua:
     cmp bx,81
     je certo
     jmp errado
+
 certo:
     xor dx,dx
     mov dx,offset msg6      
-    mov ah,09               
+    mov ah,09             
     int 21h
     jmp fim
-
 
 errado:
     xor dx,dx
@@ -120,7 +137,6 @@ fim:
 main endp
 
 imprime_matriz proc
-    
     xor bx,bx
     xor si,si               ;limpa reg
 
@@ -134,7 +150,7 @@ imprime_matriz proc
     mov cl,9                ;contador para coluna
     xor si,si               ;será a linha
 
-    mover:
+mover:
     mov dl,MATRIZ[bx][si]
     int 21h
     linha_vert
@@ -144,10 +160,10 @@ imprime_matriz proc
 
     pula_linha
 
-    add bx,9               ;contador de coluna
+    add bx,9                ;contador de coluna
     dec ch                  ;decrementa linha
     jnz inicio
-
+    barra2
     ret
 imprime_matriz endp
 
