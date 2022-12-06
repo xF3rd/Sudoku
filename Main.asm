@@ -70,12 +70,12 @@ Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
                 db 33h,35h,36h,38h,34h,32h,31h,37h,39h
 
 
-msg1 db 'Qual coluna quer mudar:$',10
-msg2 db 'Qual linha quer mudar:$',10
-msg3 db 'Qual numero vai colocar:$',10
-msg4 db 'Quer continuar?   (1-Sim/2-Nao)$'
-msg5 db 'Resposta errada!!!!$'
-msg6 db 'Resposta certa$',10,'Parabens!!!!$'
+msg1 db 10,'Qual coluna quer mudar:$'
+msg2 db 10,'Qual linha quer mudar:$'
+msg3 db 10,'Qual numero vai colocar:$'
+msg4 db 'Enter para sair$'
+msg5 db 10,'RESPOSTA ERRADA!!!!$'
+msg6 db 10,'Resposta certa$',10,'Parabens!!!!$'
 .stack 100h
 .code
 
@@ -87,9 +87,14 @@ main proc
     lea bx,MATRIZ               ;o vetor armazenado em bx
 
 novamente:
+continua:
     call imprime_matriz
+
     call troca_numero
-    call imprime_matriz
+
+    cmp ch,1                ;ve se usuario quer continuar
+    jne continua
+
     call verifica_matriz
     cmp bx,81
     je certo
@@ -139,7 +144,7 @@ imprime_matriz proc
 
     pula_linha
 
-    add bx, 9               ;contador de coluna
+    add bx,9               ;contador de coluna
     dec ch                  ;decrementa linha
     jnz inicio
 
@@ -147,29 +152,48 @@ imprime_matriz proc
 imprime_matriz endp
 
 troca_numero proc
-    continua:
+    
     xor si,si               ;zera o registrador de linha
     xor bx,bx               ;zera o registrador da coluna
     xor dx,dx               ;zerar o registrador dx p/ imprimir mensagem sem poluição
+    
 
     pula_linha
     
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    
     mov dl,offset msg1      
     mov ah,09               
-    int 21h                 
+    int 21h
+
     mov ah,01                              
-    int 21h                 ;recebe o caracter da coluna                
+    int 21h                 ;recebe o caracter da coluna
+    
+    cmp al,13
+    je pula
+
     sub al,30h              ;inverte o caracter para binário
     mov bl,al               ;valor recebido vai ser armazenado em bx
     dec bl                  ;ajusta valor recebido para entrar na matriz
 
     pula_linha
 
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    
     mov dl,offset msg2      
     mov ah,09               
-    int 21h                 
+    int 21h
+
     mov ah,01               
     int 21h                 ;recebe o caracter da linha
+
+    cmp al,13
+    je pula
+
     sub al,30h              ;inverte o caracter para binário
     xor ah,ah               ;limpa parte alta de ax
     dec al                  ;ajusta valor para entrar na matriz
@@ -181,11 +205,20 @@ troca_numero proc
 
     pula_linha
 
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    
     mov dl,offset msg3      
     mov ah,09               
-    int 21h                 
+    int 21h
+
     mov ah,01               ;recebe o caracter da substituição
     int 21h
+    
+    cmp al,13
+    je pula
+
     mov dh,al               ;guarda valor
     
     
@@ -193,18 +226,22 @@ troca_numero proc
     
     mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz 
 
-    xor dx,dx
-    mov dl,offset msg4      
-    mov ah,09               
-    int 21h
-    mov ah,01               ;recebe resposta
-    int 21h
+    ;xor dx,dx
+    ;mov dl,offset msg4      
+    ;mov ah,09               
+    ;int 21h
+    ;mov ah,01               ;recebe resposta
+    ;int 21h
 
-    mov dh,al
-    sub dh,30h
-    cmp dh,1                ;ve se usuario quer continuar
-    je continua
-    
+    ;mov dh,al
+    ;sub dh,30h
+    jmp pula2
+    ;cmp dh,1                ;ve se usuario quer continuar
+    ;je continua
+pula:
+    xor cx,cx
+    inc ch
+pula2:
     ret
 troca_numero endp
 
