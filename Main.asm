@@ -47,75 +47,7 @@ mov dl,10
 int 21h
 endm
 
-.data
-MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
-        db 32h,33h,20h,20h,36h,20h,34h,20h,20h
-        db 20h,20h,39h,34h,20h,20h,37h,20h,20h
-        db 38h,39h,20h,37h,20h,20h,20h,20h,20h
-        db 35h,20h,20h,20h,20h,20h,39h,31h,20h
-        db 20h,36h,20h,20h,20h,20h,20h,20h,37h
-        db 20h,20h,38h,20h,31h,20h,20h,34h,33h
-        db 20h,34h,31h,20h,20h,20h,20h,36h,20h
-        db 20h,20h,20h,38h,20h,32h,20h,37h,20h
-
-
-Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
-                db 32h,33h,37h,31h,36h,39h,34h,38h,35h
-                db 36h,38h,39h,34h,32h,35h,37h,33h,31h
-                db 38h,39h,33h,37h,35h,31h,36h,32h,34h
-                db 35h,37h,34h,32h,33h,36h,39h,31h,38h
-                db 31h,36h,32h,39h,38h,34h,33h,35h,37h
-                db 39h,32h,38h,36h,31h,37h,35h,34h,33h
-                db 37h,34h,31h,35h,39h,33h,38h,36h,32h
-                db 33h,35h,36h,38h,34h,32h,31h,37h,39h
-
-
-msg1 db 'Qual coluna quer mudar:$',10
-msg2 db 'Qual linha quer mudar:$',10
-msg3 db 'Qual numero vai colocar:$',10
-msg4 db 'Quer continuar?   (1-Sim/2-Nao)$'
-msg5 db 'Resposta errada!!!!$'
-msg6 db 'Resposta certa$',10,'Parabens!!!!$'
-.stack 100h
-.code
-
-main proc
-
-    mov ax,@data
-    mov ds,ax                   ;inicializa ds
-    mov es,ax                   ;inicializa es
-    lea bx,MATRIZ               ;o vetor armazenado em bx
-
-novamente:
-    call imprime_matriz
-    call troca_numero
-    call imprime_matriz
-    call verifica_matriz
-    cmp bx,81
-    je certo
-    jmp errado
-certo:
-    xor dx,dx
-    mov dx,offset msg6      
-    mov ah,09               
-    int 21h
-    jmp fim
-
-
-errado:
-    xor dx,dx
-    mov dx,offset msg5      
-    mov ah,09               
-    int 21h
-    jmp novamente
-fim:
-    mov ah,4ch
-    int 21h
-
-main endp
-
-imprime_matriz proc
-    
+imprime_matriz macro proc
     xor bx,bx
     xor si,si               ;limpa reg
 
@@ -142,16 +74,82 @@ imprime_matriz proc
     add bx, 9               ;contador de coluna
     dec ch                  ;decrementa linha
     jnz inicio
+endm
 
-    ret
-imprime_matriz endp
+.data
+MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
+        db 32h,33h,20h,20h,36h,20h,34h,20h,20h
+        db 20h,20h,39h,34h,20h,20h,37h,20h,20h
+        db 38h,39h,20h,37h,20h,20h,20h,20h,20h
+        db 35h,20h,20h,20h,20h,20h,39h,31h,20h
+        db 20h,36h,20h,20h,20h,20h,20h,20h,37h
+        db 20h,20h,38h,20h,31h,20h,20h,34h,33h
+        db 20h,34h,31h,20h,20h,20h,20h,36h,20h
+        db 20h,20h,20h,38h,20h,32h,20h,37h,20h
+
+
+Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
+                db 32h,33h,37h,31h,36h,39h,34h,38h,35h
+                db 36h,38h,39h,34h,32h,35h,37h,33h,31h
+                db 38h,39h,33h,37h,35h,31h,36h,32h,34h
+                db 35h,37h,34h,32h,33h,36h,39h,31h,38h
+                db 31h,36h,32h,39h,38h,34h,33h,35h,37h
+                db 39h,32h,38h,36h,31h,37h,35h,34h,33h
+                db 37h,34h,31h,35h,39h,33h,38h,36h,32h
+                db 33h,35h,36h,38h,34h,32h,31h,37h,39h
+
+
+msg1 db 'Qual coluna quer mudar:$',10
+msg2 db 'Qual linha quer mudar:$',10
+msg3 db 'Qual numero vai colocar:$',10
+msg4 db 'Digite:',10,'1-Continuar a troca de número',10,'2-Terminar a matriz','$'
+msg5 db 'Resposta errada!!!!$'
+msg6 db 'Resposta certa$',10,'Parabens!!!!$'
+.stack 100h
+.code
+
+main proc
+
+    mov ax,@data
+    mov ds,ax                   ;inicializa ds
+    mov es,ax                   ;inicializa es
+    lea bx,MATRIZ               ;o vetor armazenado em bx
+
+novamente:
+    ; call imprime_matriz
+    call troca_numero
+    ; call imprime_matriz
+    call verifica_matriz
+    cmp bx,81
+    je certo
+    jmp errado
+certo:
+    xor dx,dx
+    mov dx,offset msg6      
+    mov ah,09               
+    int 21h
+    jmp fim
+
+
+errado:
+    xor dx,dx
+    mov dx,offset msg5      
+    mov ah,09               
+    int 21h
+    jmp novamente
+fim:
+    mov ah,4ch
+    int 21h
+
+main endp
 
 troca_numero proc
-    continua:
+    continua3:
+    imprime_matriz          ;macro de impressão de matriz
+
     xor si,si               ;zera o registrador de linha
     xor bx,bx               ;zera o registrador da coluna
     xor dx,dx               ;zerar o registrador dx p/ imprimir mensagem sem poluição
-
     pula_linha
     
     mov dl,offset msg1      
@@ -162,9 +160,13 @@ troca_numero proc
     sub al,30h              ;inverte o caracter para binário
     mov bl,al               ;valor recebido vai ser armazenado em bx
     dec bl                  ;ajusta valor recebido para entrar na matriz
-
     pula_linha
+    jmp continua4
 
+    continua:
+    jmp continua3
+
+    continua4:
     mov dl,offset msg2      
     mov ah,09               
     int 21h                 
@@ -177,9 +179,8 @@ troca_numero proc
     mul ch                  ;multiplica o valor recebido para achar a linha certa 
     xor ah,ah
     mov si,ax               ;coloca em si
-    
-
     pula_linha
+    
 
     mov dl,offset msg3      
     mov ah,09               
@@ -190,9 +191,9 @@ troca_numero proc
     
     
     pula_linha                 
-    
-    mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz 
+    mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz
 
+    pula_linha
     xor dx,dx
     mov dl,offset msg4      
     mov ah,09               
