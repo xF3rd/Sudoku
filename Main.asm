@@ -134,7 +134,7 @@ msg7 db 13,'JOGO SUDOKO',10
 msg8 db 'Desejo-lhe boa sorte amigo ;)!',10
      db ' ',10
      db '(Clique na tecla enter para começar o jogo)',10,'$'
-aviso db 10,13,'Nao amigo, aperte a tecla enter para comecar a jogar :(','$'
+aviso db 10,13,'Nao amigo, aperte a tecla enter para continuar :(','$'
 fimjogo db ' ',10
         db 'FIM DE JOGO!',10
         db ' ',10
