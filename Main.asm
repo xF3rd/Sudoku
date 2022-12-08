@@ -93,6 +93,19 @@ msg3 db 10,'Qual numero vai colocar:$'
 msg4 db 'Enter para sair$'
 msg5 db 10,'RESPOSTA ERRADA!!!!$'
 msg6 db 10,'Resposta certa$',10,'Parabens!!!!$'
+msg7 db 13,'JOGO SUDOKO',10
+     db ' ',10
+     db 'Informacoes iniciais sobre o jogo:',10
+     db 13,'O objetivo do jogo e completar todos os quadrados',10 
+     db 'utilizando numeros de 1 a 9. Para completa-los',10
+     db 'nao pode haver numeros repetidos nas linhas',10 
+     db 'horizontais e verticais.',10
+     db ' ',10
+     db '(Clique na tecla enter para continuar)$'
+msg8 db 'Desejo-lhe boa sorte amigo ;)!',10
+     db ' ',10
+     db '(Clique na tecla enter para comecar o jogo)$',10
+aviso db 10,13,'Nao amigo, aperte a tecla enter para continuar$',10,'Tente de novo$'
 .stack 100h
 .code
 
@@ -103,10 +116,45 @@ main proc
     mov es,ax                   ;inicializa es
     lea bx,MATRIZ               ;o vetor armazenado em bx
 
-novamente:
+
+
+volta3:
+
+    pula_linha
+    mov ax,ax                   ;printa as informações do jogo
+    mov ah,09h
+    lea dx,msg7
+    int 21h
+
+    pula_linha
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    je pula3
+
+javiso:
+
+    mov ah,09h
+    lea dx,aviso
+    int 21h
+    pula_linha
+    jmp volta3
+
+pula3:
+    mov ah,09h
+    lea dx,msg8
+    int 21h
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne javiso
+
+    pula_linha
+novamente: 
 continua:
     call imprime_matriz
-
     call troca_numero
 
     cmp ch,1                ;ve se usuario quer continuar
@@ -242,18 +290,9 @@ troca_numero proc
     
     mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz 
 
-    ;xor dx,dx
-    ;mov dl,offset msg4      
-    ;mov ah,09               
-    ;int 21h
-    ;mov ah,01               ;recebe resposta
-    ;int 21h
 
-    ;mov dh,al
-    ;sub dh,30h
     jmp pula2
-    ;cmp dh,1                ;ve se usuario quer continuar
-    ;je continua
+    
 pula:
     xor cx,cx
     inc ch
