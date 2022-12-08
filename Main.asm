@@ -10,7 +10,7 @@ linha_vert macro proc               ;macro para fazer linha na vertical
 mov ah,02h
 mov dl,' '
 int 21h
-mov dl,'|'
+mov dl,0b3h
 int 21h
 mov dl,' '
 int 21h
@@ -37,12 +37,29 @@ loop1:
 cmp cl,0
 je sai
 mov ah,02h
-mov dl,'-'
+mov dl,0c4h
 int 21h
 dec cl
 
 jmp loop1
 sai:
+mov dl,10
+int 21h
+endm
+
+barra2 macro proc                    ;faz barra na horizontal
+mov cl,35
+
+loop2:
+cmp cl,0
+je sai2
+mov ah,02h
+mov dl,0c4h
+int 21h
+dec cl
+
+jmp loop2
+sai2:
 mov dl,10
 int 21h
 endm
@@ -70,12 +87,25 @@ Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
                 db 33h,35h,36h,38h,34h,32h,31h,37h,39h
 
 
-msg1 db 'Qual coluna quer mudar:$',10
-msg2 db 'Qual linha quer mudar:$',10
-msg3 db 'Qual numero vai colocar:$',10
-msg4 db 'Quer continuar?   (1-Sim/2-Nao)$'
-msg5 db 'Resposta errada!!!!$'
-msg6 db 'Resposta certa$',10,'Parabens!!!!$'
+msg1 db 10,'Qual coluna quer mudar:$'
+msg2 db 10,'Qual linha quer mudar:$'
+msg3 db 10,'Qual numero vai colocar:$'
+msg4 db 'Enter para sair$'
+msg5 db 10,'RESPOSTA ERRADA!!!!$'
+msg6 db 10,'Resposta certa$',10,'Parabens!!!!$'
+msg7 db 13,'JOGO SUDOKO',10
+     db ' ',10
+     db 'Informacoes iniciais sobre o jogo:',10
+     db 13,'O objetivo do jogo e completar todos os quadrados',10 
+     db 'utilizando numeros de 1 a 9. Para completa-los',10
+     db 'nao pode haver numeros repetidos nas linhas',10 
+     db 'horizontais e verticais.',10
+     db ' ',10
+     db '(Clique na tecla enter para continuar)$'
+msg8 db 'Desejo-lhe boa sorte amigo ;)!',10
+     db ' ',10
+     db '(Clique na tecla enter para comecar o jogo)$',10
+aviso db 10,13,'Nao amigo, aperte a tecla enter para continuar$',10,'Tente de novo$'
 .stack 100h
 .code
 
@@ -86,21 +116,61 @@ main proc
     mov es,ax                   ;inicializa es
     lea bx,MATRIZ               ;o vetor armazenado em bx
 
-novamente:
+
+
+volta3:
+
+    pula_linha
+    mov ax,ax                   ;printa as informações do jogo
+    mov ah,09h
+    lea dx,msg7
+    int 21h
+
+    pula_linha
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    je pula3
+
+javiso:
+
+    mov ah,09h
+    lea dx,aviso
+    int 21h
+    pula_linha
+    jmp volta3
+
+pula3:
+    mov ah,09h
+    lea dx,msg8
+    int 21h
+
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne javiso
+
+    pula_linha
+novamente: 
+continua:
     call imprime_matriz
     call troca_numero
-    call imprime_matriz
+
+    cmp ch,1                ;ve se usuario quer continuar
+    jne continua
+
     call verifica_matriz
     cmp bx,81
     je certo
     jmp errado
+
 certo:
     xor dx,dx
     mov dx,offset msg6      
-    mov ah,09               
+    mov ah,09             
     int 21h
     jmp fim
-
 
 errado:
     xor dx,dx
@@ -115,7 +185,6 @@ fim:
 main endp
 
 imprime_matriz proc
-    
     xor bx,bx
     xor si,si               ;limpa reg
 
@@ -129,7 +198,7 @@ imprime_matriz proc
     mov cl,9                ;contador para coluna
     xor si,si               ;será a linha
 
-    mover:
+mover:
     mov dl,MATRIZ[bx][si]
     int 21h
     linha_vert
@@ -139,37 +208,56 @@ imprime_matriz proc
 
     pula_linha
 
-    add bx, 9               ;contador de coluna
+    add bx,9                ;contador de coluna
     dec ch                  ;decrementa linha
     jnz inicio
-
+    barra2
     ret
 imprime_matriz endp
 
 troca_numero proc
-    continua:
+    
     xor si,si               ;zera o registrador de linha
     xor bx,bx               ;zera o registrador da coluna
     xor dx,dx               ;zerar o registrador dx p/ imprimir mensagem sem poluição
+    
 
     pula_linha
     
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    
     mov dl,offset msg1      
     mov ah,09               
-    int 21h                 
+    int 21h
+
     mov ah,01                              
-    int 21h                 ;recebe o caracter da coluna                
+    int 21h                 ;recebe o caracter da coluna
+    
+    cmp al,13
+    je pula
+
     sub al,30h              ;inverte o caracter para binário
     mov bl,al               ;valor recebido vai ser armazenado em bx
     dec bl                  ;ajusta valor recebido para entrar na matriz
 
     pula_linha
 
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    
     mov dl,offset msg2      
     mov ah,09               
-    int 21h                 
+    int 21h
+
     mov ah,01               
     int 21h                 ;recebe o caracter da linha
+
+    cmp al,13
+    je pula
+
     sub al,30h              ;inverte o caracter para binário
     xor ah,ah               ;limpa parte alta de ax
     dec al                  ;ajusta valor para entrar na matriz
@@ -181,11 +269,20 @@ troca_numero proc
 
     pula_linha
 
+    mov dl,offset msg4      
+    mov ah,09               
+    int 21h
+    
     mov dl,offset msg3      
     mov ah,09               
-    int 21h                 
+    int 21h
+
     mov ah,01               ;recebe o caracter da substituição
     int 21h
+    
+    cmp al,13
+    je pula
+
     mov dh,al               ;guarda valor
     
     
@@ -193,18 +290,13 @@ troca_numero proc
     
     mov MATRIZ[bx][si],dh   ;substituição do caracter na matriz 
 
-    xor dx,dx
-    mov dl,offset msg4      
-    mov ah,09               
-    int 21h
-    mov ah,01               ;recebe resposta
-    int 21h
 
-    mov dh,al
-    sub dh,30h
-    cmp dh,1                ;ve se usuario quer continuar
-    je continua
+    jmp pula2
     
+pula:
+    xor cx,cx
+    inc ch
+pula2:
     ret
 troca_numero endp
 
