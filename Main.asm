@@ -90,22 +90,32 @@ Matriz_resposta db 34h,31h,35h,33h,37h,38h,32h,39h,36h
 msg1 db 10,'Qual coluna quer mudar:$'
 msg2 db 10,'Qual linha quer mudar:$'
 msg3 db 10,'Qual numero vai colocar:$'
-msg4 db 'Enter para sair$'
-msg5 db 10,'RESPOSTA ERRADA!!!!$'
-msg6 db 10,'Resposta certa$',10,'Parabens!!!!$'
+msg4 db '(Depois de completar a matriz, aperte',10
+     db 'a tecla ENTER para saber o resultado',10
+     db 'do jogo)$'
+     db ' ',10
+msg5 db 10,'Matriz nao confere :(. Tente novamente!$'
+     db ' ','$',10
+msg6 db 10,'Matriz confere :). Parabens!!!!$',10
+     db ' ',10
 msg7 db 13,'JOGO SUDOKO',10
      db ' ',10
      db 'Informacoes iniciais sobre o jogo:',10
-     db 13,'O objetivo do jogo e completar todos os quadrados',10 
-     db 'utilizando numeros de 1 a 9. Para completa-los',10
-     db 'nao pode haver numeros repetidos nas linhas',10 
-     db 'horizontais e verticais.',10
+     db ' ',10
+     db '   O objetivo do jogo e completar to-',10 
+     db 'dos os quadrados utilizando numeros',10
+     db 'de 1 a 9.',10 
+     db '   Para completa-los nao pode haver ',10 
+     db 'numeros repetidos nas linhas hori-',10
+     db 'zontais e verticais.',10
+     db 'Vamos comecar :D?',10
      db ' ',10
      db '(Clique na tecla enter para continuar)$'
 msg8 db 'Desejo-lhe boa sorte amigo ;)!',10
      db ' ',10
      db '(Clique na tecla enter para comecar o jogo)$',10
-aviso db 10,13,'Nao amigo, aperte a tecla enter para continuar$',10,'Tente de novo$'
+aviso db 10,'Nao amigo, aperte a tecla enter para continuar',10
+      db 'Tente novamente!$'
 .stack 100h
 .code
 
@@ -139,20 +149,33 @@ javiso:
     lea dx,aviso
     int 21h
     pula_linha
-    jmp volta3
-
-pula3:
-    mov ah,09h
-    lea dx,msg8
-    int 21h
-
     mov ah,01h                  ;jogador digita ou aperta o enter
     int 21h
     cmp al,0Dh                  ;se ele não apertar, pula para um aviso
-    jne javiso
+    je pula3
+    jmp javiso
 
+pula3:
+    mov ah,09h                  ;mensagem para iniciar o jogo
+    lea dx,msg8
+    int 21h
     pula_linha
-novamente: 
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    je novamente
+
+javiso2:
+    mov ah,09h
+    lea dx,aviso
+    int 21h
+    pula_linha
+    mov ah,01h                  ;jogador digita ou aperta o enter
+    int 21h
+    cmp al,0Dh                  ;se ele não apertar, pula para um aviso
+    jne javiso2
+
+novamente:
 continua:
     call imprime_matriz
     call troca_numero
@@ -241,12 +264,6 @@ troca_numero proc
     sub al,30h              ;inverte o caracter para binário
     mov bl,al               ;valor recebido vai ser armazenado em bx
     dec bl                  ;ajusta valor recebido para entrar na matriz
-
-    pula_linha
-
-    mov dl,offset msg4      
-    mov ah,09               
-    int 21h
     
     mov dl,offset msg2      
     mov ah,09               
@@ -266,13 +283,6 @@ troca_numero proc
     xor ah,ah
     mov si,ax               ;coloca em si
     
-
-    pula_linha
-
-    mov dl,offset msg4      
-    mov ah,09               
-    int 21h
-    
     mov dl,offset msg3      
     mov ah,09               
     int 21h
@@ -284,7 +294,6 @@ troca_numero proc
     je pula
 
     mov dh,al               ;guarda valor
-    
     
     pula_linha                 
     
