@@ -301,29 +301,30 @@ pula2:
 troca_numero endp
 
 verifica_matriz proc
-xor bx,bx
+
 xor cx,cx
 xor dx,dx
-mov cx,81
+
+volta2:
+xor bx,bx 
+mov cx,9
 volta:
 
-    cld
-    lea si,MATRIZ
-    lea di,Matriz_resposta
-    cmpsb
+mov dl,matriz[bx][si]
+mov dh,Matriz_resposta[bx][si]
+cmp dl,dh
+je certo5
+jmp errado2
 
-    jnz certo1
+certo5:
+inc bx
+dec cx
+cmp cx,9
+jnz volta
+add si,9
+jmp volta2
 
-continua2:
-    dec cx
-    cmp cx,0
-    jnz volta
-    jmp fim1
-
-    certo1:
-    inc bx
-    jmp continua2
-fim1:    
+errado2:
 ret
 verifica_matriz endp
 
