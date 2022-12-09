@@ -65,7 +65,7 @@ int 21h
 endm
 
 .data
-MATRIZ  db 34h,20h,20h,33h,20h,38h,20h,20h,36h
+MATRIZ db 34h,20h,20h,33h,20h,38h,20h,20h,36h
         db 32h,33h,20h,20h,36h,20h,34h,20h,20h
         db 20h,20h,39h,34h,20h,20h,37h,20h,20h
         db 38h,39h,20h,37h,20h,20h,20h,20h,20h
@@ -189,10 +189,13 @@ continua:
     jmp errado
 
 certo:
+    pula_linha
+    pula_linha
     xor dx,dx
     mov dx,offset msg6      
     mov ah,09             
     int 21h
+    call imprime_matriz
     jmp fim
 
 errado:
@@ -310,30 +313,29 @@ pula2:
 troca_numero endp
 
 verifica_matriz proc
-xor bx,bx
-xor cx,cx
-xor dx,dx
-mov cx,81
+    xor cx,cx
+    xor dx,dx
+
+volta2:
+    xor bx,bx 
+    mov cx,9
 volta:
+    mov dl,matriz[bx][si]
+    mov dh,Matriz_resposta[bx][si]
+    cmp dl,dh
+    je certo5
+    jmp errado2
 
-    cld
-    lea si,MATRIZ
-    lea di,Matriz_resposta
-    cmpsb
-
-    jnz certo1
-
-continua2:
-    dec cx
-    cmp cx,0
-    jnz volta
-    jmp fim1
-
-    certo1:
+certo5:
     inc bx
-    jmp continua2
-fim1:    
-ret
+    dec cx
+    cmp cx,9
+    jnz volta
+    add si,9
+    jmp volta2
+
+errado2:
+    ret
 verifica_matriz endp
 
 
